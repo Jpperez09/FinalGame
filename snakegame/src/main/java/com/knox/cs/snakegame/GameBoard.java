@@ -15,6 +15,7 @@ public class GameBoard extends Pane {
     private static final int WIDTH = 600;
     private static final int HEIGHT = 400;
     private static final int TILE_SIZE = 20;
+    private static final int ANIMATION_STEPS = 5;
 
     private Timeline timeline;
     private GraphicsContext gc;
@@ -23,6 +24,7 @@ public class GameBoard extends Pane {
     private int score;
     private boolean gameOver;
     private Button restartButton;
+    private int animationStep;
 
     public GameBoard() {
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
@@ -34,6 +36,7 @@ public class GameBoard extends Pane {
         food = new Food();
         score = 0;
         gameOver = false;
+        animationStep = 0;
 
         // Initialize and configure the restart button
         restartButton = new Button("Restart");
@@ -49,7 +52,7 @@ public class GameBoard extends Pane {
 
         this.setOnKeyPressed(event -> handleKeyPress(event));
 
-        timeline = new Timeline(new KeyFrame(Duration.millis(150), e -> run()));
+        timeline = new Timeline(new KeyFrame(Duration.millis(150 / ANIMATION_STEPS), e -> run()));
         timeline.setCycleCount(Timeline.INDEFINITE);
     }
 
@@ -95,27 +98,34 @@ public class GameBoard extends Pane {
             return;
         }
 
-        snake.move();
-
-        if (snake.isFoodEaten(food)) {
-            food.relocate(snake);
-            score++;
+        if (animationStep == 0) {
+            snake.move();
+            if (snake.isFoodEaten(food)) {
+                food.relocate(snake);
+                score++;
+            }
         }
 
         draw();
+
+        animationStep = (animationStep + 1) % ANIMATION_STEPS;
     }
 
     private void draw() {
         gc.clearRect(0, 0, WIDTH, HEIGHT);
 
-        // Draw the grid
-        gc.setStroke(Color.DARKGRAY);
-        gc.setLineWidth(1);
+        // Draw the checkerboard grid
+        Color lightGreen = Color.web("#A2D149");
+        Color darkGreen = Color.web("#AAD751");
         for (int x = 0; x < WIDTH; x += TILE_SIZE) {
-            gc.strokeLine(x, 0, x, HEIGHT);
-        }
-        for (int y = 0; y < HEIGHT; y += TILE_SIZE) {
-            gc.strokeLine(0, y, WIDTH, y);
+            for (int y = 0; y < HEIGHT; y += TILE_SIZE) {
+                if ((x / TILE_SIZE + y / TILE_SIZE) % 2 == 0) {
+                    gc.setFill(lightGreen);
+                } else {
+                    gc.setFill(darkGreen);
+                }
+                gc.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            }
         }
 
         // Draw the border
@@ -123,10 +133,50 @@ public class GameBoard extends Pane {
         gc.setLineWidth(2);
         gc.strokeRect(1, 1, WIDTH - 2, HEIGHT - 2);
 
+        
         // Draw the snake
-        gc.setFill(Color.GREEN);
-        for (Point point : snake.getBody()) {
-            gc.fillRect(point.getX() * TILE_SIZE, point.getY() * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        Point previous = null;
+        for (int i = 0; i < snake.getBody().size(); i++) {
+            Point point = snake.getBody().get(i);
+            double x = point.getX() * TILE_SIZE;
+            double y = point.getY() * TILE_SIZE;
+
+            if (previous != null) {
+                x = interpolate(previous.getX() * TILE_SIZE, x);
+                y = interpolate(previous.getY() * TILE_SIZE, y);
+            }
+
+            if (i == 0) { // Head of the snake
+                gc.setFill(Color.BLUE);
+                gc.fillOval(x, y, TILE_SIZE, TILE_SIZE);
+
+                // Draw eyes
+                gc.setFill(Color.WHITE);
+                double eyeSize = TILE_SIZE / 5.0;
+                double eyeOffset = TILE_SIZE / 3.0;
+                switch (snake.getDirection()) {
+                    case UP:
+                        gc.fillOval(x + eyeOffset, y + eyeOffset, eyeSize, eyeSize);
+                        gc.fillOval(x + 2 * eyeOffset - eyeSize, y + eyeOffset, eyeSize, eyeSize);
+                        break;
+                    case DOWN:
+                        gc.fillOval(x + eyeOffset, y + 2 * eyeOffset - eyeSize, eyeSize, eyeSize);
+                        gc.fillOval(x + 2 * eyeOffset - eyeSize, y + 2 * eyeOffset - eyeSize, eyeSize, eyeSize);
+                        break;
+                    case LEFT:
+                        gc.fillOval(x + eyeOffset, y + eyeOffset, eyeSize, eyeSize);
+                        gc.fillOval(x + eyeOffset, y + 2 * eyeOffset - eyeSize, eyeSize, eyeSize);
+                        break;
+                    case RIGHT:
+                        gc.fillOval(x + 2 * eyeOffset - eyeSize, y + eyeOffset, eyeSize, eyeSize);
+                        gc.fillOval(x + 2 * eyeOffset - eyeSize, y + 2 * eyeOffset - eyeSize, eyeSize, eyeSize);
+                        break;
+                }
+            } else {
+                gc.setFill(Color.GREEN);
+                gc.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            }
+            previous = point;
         }
 
         // Draw the food
@@ -143,6 +193,10 @@ public class GameBoard extends Pane {
             gc.setFill(Color.WHITE);
             gc.fillText("Game Over! Press Enter to Restart", WIDTH / 2 - 100, HEIGHT / 2);
         }
+    }
+
+    private double interpolate(double start, double end) {
+        return start + ((end - start) * animationStep) / ANIMATION_STEPS;
     }
 
     private void restartGame() {
