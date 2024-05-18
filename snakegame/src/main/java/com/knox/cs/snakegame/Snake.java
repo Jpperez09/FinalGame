@@ -5,17 +5,20 @@ import java.util.List;
 
 public class Snake {
     private List<Point> body;
+    private List<Point> previousBody;
     private Direction direction;
     private boolean alive;
 
     public Snake() {
         body = new LinkedList<>();
         body.add(new Point(10, 10));
+        previousBody = new LinkedList<>(body);
         direction = Direction.RIGHT;
         alive = true;
     }
 
     public void move() {
+        previousBody = new LinkedList<>(body); // Store current body as previous body
         Point head = body.get(0);
         Point newHead = head.move(direction);
 
@@ -42,6 +45,10 @@ public class Snake {
 
     public List<Point> getBody() {
         return body;
+    }
+
+    public List<Point> getPreviousBody() {
+        return previousBody;
     }
 
     public boolean isFoodEaten(Food food) {

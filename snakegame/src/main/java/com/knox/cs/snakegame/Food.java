@@ -8,13 +8,13 @@ import javafx.util.Duration;
 public class Food {
     private Point point;
     private static final Random random = new Random();
-    private Timeline bounceTimeline;
-    private int bounceOffset;
+    private Timeline bounceTimeline;  //bounce aniamtion
+    private int bounceOffset; //offset for bounce animation
 
     public Food() {
         relocate(null);
         bounceOffset = 0;
-        bounceTimeline = new Timeline(new KeyFrame(Duration.millis(150), e -> bounce()));
+        bounceTimeline = new Timeline(new KeyFrame(Duration.millis(350), e -> bounce()));
         bounceTimeline.setCycleCount(Timeline.INDEFINITE);
         bounceTimeline.play();
     }

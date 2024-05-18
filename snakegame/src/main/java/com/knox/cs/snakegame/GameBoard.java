@@ -15,7 +15,7 @@ public class GameBoard extends Pane {
     private static final int WIDTH = 600;
     private static final int HEIGHT = 400;
     private static final int TILE_SIZE = 20;
-    private static final int ANIMATION_STEPS = 5;
+    private static final int ANIMATION_STEPS = 10;
 
     private Timeline timeline;
     private GraphicsContext gc;
@@ -133,23 +133,23 @@ public class GameBoard extends Pane {
         gc.setLineWidth(2);
         gc.strokeRect(1, 1, WIDTH - 2, HEIGHT - 2);
 
-        // Draw the snake
-        Point previous = null;
+        // Draw the snake with rounded rectangles and interpolate movement
         for (int i = 0; i < snake.getBody().size(); i++) {
-            Point point = snake.getBody().get(i);
-            double x = point.getX() * TILE_SIZE;
-            double y = point.getY() * TILE_SIZE;
+            Point current = snake.getBody().get(i);
+            Point previous = snake.getPreviousBody().get(i);
 
-            if (previous != null) {
-                x = interpolate(previous.getX() * TILE_SIZE, x);
-                y = interpolate(previous.getY() * TILE_SIZE, y);
-            }
+            double startX = previous.getX() * TILE_SIZE;
+            double startY = previous.getY() * TILE_SIZE;
+            double endX = current.getX() * TILE_SIZE;
+            double endY = current.getY() * TILE_SIZE;
 
-            if (i == 0) { // Head of the snake
-                gc.setFill(Color.BLUE);
-                gc.fillOval(x, y, TILE_SIZE, TILE_SIZE);
+            double x = interpolate(startX, endX);
+            double y = interpolate(startY, endY);
 
-                // Draw eyes
+            gc.setFill(i == 0 ? Color.BLUE : Color.GREEN); // Head is blue, body is green
+            gc.fillRoundRect(x, y, TILE_SIZE, TILE_SIZE, 10, 10); // Draw rounded rectangles
+
+            if (i == 0) { // Draw eyes on the head
                 gc.setFill(Color.WHITE);
                 double eyeSize = TILE_SIZE / 5.0;
                 double eyeOffset = TILE_SIZE / 3.0;
@@ -171,11 +171,7 @@ public class GameBoard extends Pane {
                         gc.fillOval(x + 2 * eyeOffset - eyeSize, y + 2 * eyeOffset - eyeSize, eyeSize, eyeSize);
                         break;
                 }
-            } else {
-                gc.setFill(Color.GREEN);
-                gc.fillRect(x, y, TILE_SIZE, TILE_SIZE);
             }
-            previous = point;
         }
 
         // Draw the food
