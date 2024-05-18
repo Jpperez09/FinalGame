@@ -133,7 +133,6 @@ public class GameBoard extends Pane {
         gc.setLineWidth(2);
         gc.strokeRect(1, 1, WIDTH - 2, HEIGHT - 2);
 
-        
         // Draw the snake
         Point previous = null;
         for (int i = 0; i < snake.getBody().size(); i++) {
