@@ -12,9 +12,9 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 public class GameBoard extends Pane {
-    private static final int WIDTH = 600;
-    private static final int HEIGHT = 400;
-    private static final int TILE_SIZE = 20;
+    public static final int WIDTH = 600;
+    public static final int HEIGHT = 400;
+    public static final int TILE_SIZE = 20;
     private static final int ANIMATION_STEPS = 10;
 
     private Timeline timeline;
@@ -174,10 +174,8 @@ public class GameBoard extends Pane {
             }
         }
 
-        // Draw the food
-        gc.setFill(Color.RED);
-        Point foodPoint = food.getPoint();
-        gc.fillRect(foodPoint.getX() * TILE_SIZE, foodPoint.getY() * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        // Draw the food with palpitation effect
+        food.draw(gc);
 
         // Draw the score
         gc.setFill(Color.WHITE);
