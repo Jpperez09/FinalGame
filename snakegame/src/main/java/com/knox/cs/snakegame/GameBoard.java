@@ -171,7 +171,8 @@ public class GameBoard extends Pane {
         // Draw the snake
         for (int i = 0; i < snake.getBody().size(); i++) {
             Point current = snake.getBody().get(i);
-            Point previous = snake.getPreviousBody().get(i);
+            Point previous = (i == 0) ? current : snake.getBody().get(i - 1);  // Use current point for head, previous for others
+            Point next = (i == snake.getBody().size() - 1) ? current : snake.getBody().get(i + 1); // Use current point for tail, next for others
     
             double startX = previous.getX() * TILE_SIZE;
             double startY = previous.getY() * TILE_SIZE;
@@ -198,39 +199,41 @@ public class GameBoard extends Pane {
                         break;
                 }
             } else if (i == snake.getBody().size() - 1) { // Tail
-                Point beforeTail = snake.getBody().get(i - 1);
-                if (beforeTail.getY() < current.getY()) {
+                if (previous.getY() < current.getY()) {
                     image = tailDown;
-                } else if (beforeTail.getY() > current.getY()) {
+                } else if (previous.getY() > current.getY()) {
                     image = tailUp;
-                } else if (beforeTail.getX() < current.getX()) {
+                } else if (previous.getX() < current.getX()) {
                     image = tailRight;
-                } else if (beforeTail.getX() > current.getX()) {
+                } else if (previous.getX() > current.getX()) {
                     image = tailLeft;
                 }
             } else { // Body
-                Point next = snake.getBody().get(i + 1);
-                if (previous.getX() != next.getX()) {
-                    image = bodyHorizontal;
-                } else if (previous.getY() != next.getY()) {
+                if (previous.getX() == next.getX()) {
                     image = bodyVertical;
+                } else if (previous.getY() == next.getY()) {
+                    image = bodyHorizontal;
                 } else if ((previous.getX() < current.getX() && next.getY() > current.getY()) ||
-                           (previous.getY() < current.getY() && next.getX() > current.getX())) {
+                           (next.getX() < current.getX() && previous.getY() < current.getY())) {
+                    image = bodyTopRight;
+                } else if ((previous.getX() < current.getX() && next.getY() < current.getY()) ||
+                           (next.getX() < current.getX() && previous.getY() > current.getY())) {
+                    image = bodyBottomRight;
+                } else if ((previous.getX() > current.getX() && next.getY() > current.getY()) ||
+                           (next.getX() > current.getX() && previous.getY() < current.getY())) {
                     image = bodyTopLeft;
                 } else if ((previous.getX() > current.getX() && next.getY() < current.getY()) ||
-                           (previous.getY() > current.getY() && next.getX() < current.getX())) {
-                    image = bodyBottomRight;
-                } else if ((previous.getX() < current.getX() && next.getY() < current.getY()) ||
-                           (previous.getY() > current.getY() && next.getX() > current.getX())) {
+                           (next.getX() > current.getX() && previous.getY() > current.getY())) {
                     image = bodyBottomLeft;
-                } else if ((previous.getX() > current.getX() && next.getY() > current.getY()) ||
-                           (previous.getY() < current.getY() && next.getX() < current.getX())) {
-                    image = bodyTopRight;
                 }
             }
     
+            // Debug print for visibility
             if (image != null) {
+                System.out.println("Drawing image at: (" + x + ", " + y + ") for part " + i);
                 gc.drawImage(image, x, y, TILE_SIZE, TILE_SIZE);
+            } else {
+                System.out.println("Image is null for part " + i);
             }
         }
     
@@ -251,6 +254,7 @@ public class GameBoard extends Pane {
     private double interpolate(double start, double end) {
         return start + ((end - start) * animationStep) / ANIMATION_STEPS;
     }
+    
     
 
     private void restartGame() {
