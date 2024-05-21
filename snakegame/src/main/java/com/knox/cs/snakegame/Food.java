@@ -4,7 +4,7 @@ import java.util.Random;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
+import javafx.scene.image.Image;
 import javafx.util.Duration;
 
 public class Food {
@@ -12,10 +12,14 @@ public class Food {
     private static final Random random = new Random();
     private Timeline palpitateTimeline;
     private double scale;
+    private Image apple;
 
     public Food() {
         relocate(null);
         scale = 1.0;
+
+        // Load apple image
+        apple = loadImage("/Graphics/apple.png");
 
         // Create a timeline that adjusts the scale for the palpitation effect
         palpitateTimeline = new Timeline(
@@ -25,6 +29,16 @@ public class Food {
         );
         palpitateTimeline.setCycleCount(Timeline.INDEFINITE);
         palpitateTimeline.play();
+    }
+
+    private Image loadImage(String path) {
+        Image image = new Image(getClass().getResourceAsStream(path));
+        if (image.isError()) {
+            System.out.println("Error loading image: " + path);
+        } else {
+            System.out.println("Loaded image: " + path);
+        }
+        return image;
     }
 
     public void relocate(Snake snake) {
@@ -58,7 +72,6 @@ public class Food {
         double y = point.getY() * GameBoard.TILE_SIZE;
         double size = GameBoard.TILE_SIZE * scale;
 
-        gc.setFill(Color.RED);
-        gc.fillOval(x + (GameBoard.TILE_SIZE - size) / 2, y + (GameBoard.TILE_SIZE - size) / 2, size, size);
+        gc.drawImage(apple, x + (GameBoard.TILE_SIZE - size) / 2, y + (GameBoard.TILE_SIZE - size) / 2, size, size);
     }
 }

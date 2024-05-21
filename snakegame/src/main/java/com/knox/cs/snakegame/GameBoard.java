@@ -5,6 +5,7 @@ import javafx.animation.Timeline;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
@@ -26,11 +27,34 @@ public class GameBoard extends Pane {
     private Button restartButton;
     private int animationStep;
 
+    // Load images
+    private Image headUp, headDown, headLeft, headRight;
+    private Image bodyHorizontal, bodyVertical, bodyTopLeft, bodyTopRight, bodyBottomLeft, bodyBottomRight;
+    private Image tailUp, tailDown, tailLeft, tailRight;
+    private Image apple;
+
     public GameBoard() {
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
         gc = canvas.getGraphicsContext2D();
         this.getChildren().add(canvas);
         this.setStyle("-fx-background-color: black;");
+
+        // Load images and print paths
+        headUp = loadImage("/Graphics/head_up.png");
+        headDown = loadImage("/Graphics/head_down.png");
+        headLeft = loadImage("/Graphics/head_left.png");
+        headRight = loadImage("/Graphics/head_right.png");
+        bodyHorizontal = loadImage("/Graphics/body_horizontal.png");
+        bodyVertical = loadImage("/Graphics/body_vertical.png");
+        bodyTopLeft = loadImage("/Graphics/body_topleft.png");
+        bodyTopRight = loadImage("/Graphics/body_topright.png");
+        bodyBottomLeft = loadImage("/Graphics/body_bottomleft.png");
+        bodyBottomRight = loadImage("/Graphics/body_bottomright.png");
+        tailUp = loadImage("/Graphics/tail_up.png");
+        tailDown = loadImage("/Graphics/tail_down.png");
+        tailLeft = loadImage("/Graphics/tail_left.png");
+        tailRight = loadImage("/Graphics/tail_right.png");
+        apple = loadImage("/Graphics/apple.png");
 
         snake = new Snake();
         food = new Food();
@@ -54,6 +78,16 @@ public class GameBoard extends Pane {
 
         timeline = new Timeline(new KeyFrame(Duration.millis(150 / ANIMATION_STEPS), e -> run()));
         timeline.setCycleCount(Timeline.INDEFINITE);
+    }
+
+    private Image loadImage(String path) {
+        Image image = new Image(getClass().getResourceAsStream(path));
+        if (image.isError()) {
+            System.out.println("Error loading image: " + path);
+        } else {
+            System.out.println("Loaded image: " + path);
+        }
+        return image;
     }
 
     private void handleKeyPress(KeyEvent event) {
@@ -133,7 +167,7 @@ public class GameBoard extends Pane {
         gc.setLineWidth(2);
         gc.strokeRect(1, 1, WIDTH - 2, HEIGHT - 2);
 
-        // Draw the snake with rounded rectangles and interpolate movement
+        // Draw the snake
         for (int i = 0; i < snake.getBody().size(); i++) {
             Point current = snake.getBody().get(i);
             Point previous = snake.getPreviousBody().get(i);
@@ -146,35 +180,60 @@ public class GameBoard extends Pane {
             double x = interpolate(startX, endX);
             double y = interpolate(startY, endY);
 
-            gc.setFill(i == 0 ? Color.BLUE : Color.GREEN); // Head is blue, body is green
-            gc.fillRoundRect(x, y, TILE_SIZE, TILE_SIZE, 10, 10); // Draw rounded rectangles
-
-            if (i == 0) { // Draw eyes on the head
-                gc.setFill(Color.WHITE);
-                double eyeSize = TILE_SIZE / 5.0;
-                double eyeOffset = TILE_SIZE / 3.0;
+            Image image = null;
+            if (i == 0) { // Head
                 switch (snake.getDirection()) {
                     case UP:
-                        gc.fillOval(x + eyeOffset, y + eyeOffset, eyeSize, eyeSize);
-                        gc.fillOval(x + 2 * eyeOffset - eyeSize, y + eyeOffset, eyeSize, eyeSize);
+                        image = headUp;
                         break;
                     case DOWN:
-                        gc.fillOval(x + eyeOffset, y + 2 * eyeOffset - eyeSize, eyeSize, eyeSize);
-                        gc.fillOval(x + 2 * eyeOffset - eyeSize, y + 2 * eyeOffset - eyeSize, eyeSize, eyeSize);
+                        image = headDown;
                         break;
                     case LEFT:
-                        gc.fillOval(x + eyeOffset, y + eyeOffset, eyeSize, eyeSize);
-                        gc.fillOval(x + eyeOffset, y + 2 * eyeOffset - eyeSize, eyeSize, eyeSize);
+                        image = headLeft;
                         break;
                     case RIGHT:
-                        gc.fillOval(x + 2 * eyeOffset - eyeSize, y + eyeOffset, eyeSize, eyeSize);
-                        gc.fillOval(x + 2 * eyeOffset - eyeSize, y + 2 * eyeOffset - eyeSize, eyeSize, eyeSize);
+                        image = headRight;
                         break;
                 }
+            } else if (i == snake.getBody().size() - 1) { // Tail
+                Point beforeTail = snake.getBody().get(i - 1);
+                if (beforeTail.getY() < current.getY()) {
+                    image = tailDown;
+                } else if (beforeTail.getY() > current.getY()) {
+                    image = tailUp;
+                } else if (beforeTail.getX() < current.getX()) {
+                    image = tailRight;
+                } else if (beforeTail.getX() > current.getX()) {
+                    image = tailLeft;
+                }
+            } else { // Body
+                Point next = snake.getBody().get(i + 1);
+                if (previous.getX() != next.getX()) {
+                    image = bodyHorizontal;
+                } else if (previous.getY() != next.getY()) {
+                    image = bodyVertical;
+                } else if ((previous.getX() < current.getX() && next.getY() > current.getY()) ||
+                           (previous.getY() < current.getY() && next.getX() > current.getX())) {
+                    image = bodyTopLeft;
+                } else if ((previous.getX() > current.getX() && next.getY() < current.getY()) ||
+                           (previous.getY() > current.getY() && next.getX() < current.getX())) {
+                    image = bodyBottomRight;
+                } else if ((previous.getX() < current.getX() && next.getY() < current.getY()) ||
+                           (previous.getY() > current.getY() && next.getX() > current.getX())) {
+                    image = bodyBottomLeft;
+                } else if ((previous.getX() > current.getX() && next.getY() > current.getY()) ||
+                           (previous.getY() < current.getY() && next.getX() < current.getX())) {
+                    image = bodyTopRight;
+                }
+            }
+
+            if (image != null) {
+                gc.drawImage(image, x, y, TILE_SIZE, TILE_SIZE);
             }
         }
 
-        // Draw the food with palpitation effect
+        // Draw the food
         food.draw(gc);
 
         // Draw the score
