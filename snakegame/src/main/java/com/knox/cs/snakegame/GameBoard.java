@@ -147,7 +147,7 @@ public class GameBoard extends Pane {
 
     private void draw() {
         gc.clearRect(0, 0, WIDTH, HEIGHT);
-
+    
         // Draw the checkerboard grid
         Color lightGreen = Color.web("#A2D149");
         Color darkGreen = Color.web("#AAD751");
@@ -161,25 +161,16 @@ public class GameBoard extends Pane {
                 gc.fillRect(x, y, TILE_SIZE, TILE_SIZE);
             }
         }
-
+    
         // Draw the border
         gc.setStroke(Color.GRAY);
         gc.setLineWidth(2);
         gc.strokeRect(1, 1, WIDTH - 2, HEIGHT - 2);
-
+    
         // Draw the snake
         for (int i = 0; i < snake.getBody().size(); i++) {
             Point current = snake.getBody().get(i);
-            Point previous = snake.getPreviousBody().get(i);
-
-            double startX = previous.getX() * TILE_SIZE;
-            double startY = previous.getY() * TILE_SIZE;
-            double endX = current.getX() * TILE_SIZE;
-            double endY = current.getY() * TILE_SIZE;
-
-            double x = interpolate(startX, endX);
-            double y = interpolate(startY, endY);
-
+    
             Image image = null;
             if (i == 0) { // Head
                 switch (snake.getDirection()) {
@@ -209,37 +200,39 @@ public class GameBoard extends Pane {
                 }
             } else { // Body
                 Point next = snake.getBody().get(i + 1);
-                if (previous.getX() != next.getX()) {
-                    image = bodyHorizontal;
-                } else if (previous.getY() != next.getY()) {
+                Point previous = snake.getBody().get(i - 1);
+    
+                if (previous.getX() == next.getX()) {
                     image = bodyVertical;
-                } else if ((previous.getX() < current.getX() && next.getY() > current.getY()) ||
-                           (previous.getY() < current.getY() && next.getX() > current.getX())) {
-                    image = bodyTopLeft;
-                } else if ((previous.getX() > current.getX() && next.getY() < current.getY()) ||
-                           (previous.getY() > current.getY() && next.getX() < current.getX())) {
-                    image = bodyBottomRight;
+                } else if (previous.getY() == next.getY()) {
+                    image = bodyHorizontal;
                 } else if ((previous.getX() < current.getX() && next.getY() < current.getY()) ||
-                           (previous.getY() > current.getY() && next.getX() > current.getX())) {
-                    image = bodyBottomLeft;
-                } else if ((previous.getX() > current.getX() && next.getY() > current.getY()) ||
-                           (previous.getY() < current.getY() && next.getX() < current.getX())) {
+                           (next.getX() < current.getX() && previous.getY() < current.getY())) {
                     image = bodyTopRight;
+                } else if ((previous.getX() < current.getX() && next.getY() > current.getY()) ||
+                           (next.getX() < current.getX() && previous.getY() > current.getY())) {
+                    image = bodyBottomRight;
+                } else if ((previous.getX() > current.getX() && next.getY() < current.getY()) ||
+                           (next.getX() > current.getX() && previous.getY() < current.getY())) {
+                    image = bodyTopLeft;
+                } else if ((previous.getX() > current.getX() && next.getY() > current.getY()) ||
+                           (next.getX() > current.getX() && previous.getY() > current.getY())) {
+                    image = bodyBottomLeft;
                 }
             }
-
+    
             if (image != null) {
-                gc.drawImage(image, x, y, TILE_SIZE, TILE_SIZE);
+                gc.drawImage(image, current.getX() * TILE_SIZE, current.getY() * TILE_SIZE, TILE_SIZE, TILE_SIZE);
             }
         }
-
+    
         // Draw the food
         food.draw(gc);
-
+    
         // Draw the score
         gc.setFill(Color.WHITE);
         gc.fillText("Score: " + score, 10, 10);
-
+    
         // Draw game over message
         if (gameOver) {
             gc.setFill(Color.WHITE);
