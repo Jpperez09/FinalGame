@@ -131,7 +131,7 @@ public class GameBoard extends Pane {
             restartButton.setVisible(true); // Show the restart button
             return;
         }
-
+    
         if (animationStep == 0) {
             snake.move();
             if (snake.isFoodEaten(food)) {
@@ -139,11 +139,12 @@ public class GameBoard extends Pane {
                 score++;
             }
         }
-
+    
         draw();
-
+    
         animationStep = (animationStep + 1) % ANIMATION_STEPS;
     }
+    
 
     private void draw() {
         gc.clearRect(0, 0, WIDTH, HEIGHT);
@@ -170,6 +171,15 @@ public class GameBoard extends Pane {
         // Draw the snake
         for (int i = 0; i < snake.getBody().size(); i++) {
             Point current = snake.getBody().get(i);
+            Point previous = snake.getPreviousBody().get(i);
+    
+            double startX = previous.getX() * TILE_SIZE;
+            double startY = previous.getY() * TILE_SIZE;
+            double endX = current.getX() * TILE_SIZE;
+            double endY = current.getY() * TILE_SIZE;
+    
+            double x = interpolate(startX, endX);
+            double y = interpolate(startY, endY);
     
             Image image = null;
             if (i == 0) { // Head
@@ -200,29 +210,27 @@ public class GameBoard extends Pane {
                 }
             } else { // Body
                 Point next = snake.getBody().get(i + 1);
-                Point previous = snake.getBody().get(i - 1);
-    
-                if (previous.getX() == next.getX()) {
-                    image = bodyVertical;
-                } else if (previous.getY() == next.getY()) {
+                if (previous.getX() != next.getX()) {
                     image = bodyHorizontal;
-                } else if ((previous.getX() < current.getX() && next.getY() < current.getY()) ||
-                           (next.getX() < current.getX() && previous.getY() < current.getY())) {
-                    image = bodyTopRight;
+                } else if (previous.getY() != next.getY()) {
+                    image = bodyVertical;
                 } else if ((previous.getX() < current.getX() && next.getY() > current.getY()) ||
-                           (next.getX() < current.getX() && previous.getY() > current.getY())) {
-                    image = bodyBottomRight;
-                } else if ((previous.getX() > current.getX() && next.getY() < current.getY()) ||
-                           (next.getX() > current.getX() && previous.getY() < current.getY())) {
+                           (previous.getY() < current.getY() && next.getX() > current.getX())) {
                     image = bodyTopLeft;
-                } else if ((previous.getX() > current.getX() && next.getY() > current.getY()) ||
-                           (next.getX() > current.getX() && previous.getY() > current.getY())) {
+                } else if ((previous.getX() > current.getX() && next.getY() < current.getY()) ||
+                           (previous.getY() > current.getY() && next.getX() < current.getX())) {
+                    image = bodyBottomRight;
+                } else if ((previous.getX() < current.getX() && next.getY() < current.getY()) ||
+                           (previous.getY() > current.getY() && next.getX() > current.getX())) {
                     image = bodyBottomLeft;
+                } else if ((previous.getX() > current.getX() && next.getY() > current.getY()) ||
+                           (previous.getY() < current.getY() && next.getX() < current.getX())) {
+                    image = bodyTopRight;
                 }
             }
     
             if (image != null) {
-                gc.drawImage(image, current.getX() * TILE_SIZE, current.getY() * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                gc.drawImage(image, x, y, TILE_SIZE, TILE_SIZE);
             }
         }
     
@@ -239,10 +247,11 @@ public class GameBoard extends Pane {
             gc.fillText("Game Over! Press Enter to Restart", WIDTH / 2 - 100, HEIGHT / 2);
         }
     }
-
+    
     private double interpolate(double start, double end) {
         return start + ((end - start) * animationStep) / ANIMATION_STEPS;
     }
+    
 
     private void restartGame() {
         snake = new Snake();
