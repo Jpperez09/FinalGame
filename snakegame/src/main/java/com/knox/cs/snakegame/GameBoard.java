@@ -32,6 +32,10 @@ public class GameBoard extends Pane {
         this.getChildren().add(canvas);
         this.setStyle("-fx-background-color: black;");
 
+        // Prevent stretching in full screen
+        this.widthProperty().addListener((obs, oldVal, newVal) -> canvas.setWidth(WIDTH));
+        this.heightProperty().addListener((obs, oldVal, newVal) -> canvas.setHeight(HEIGHT));
+
         renderer = new Renderer();
 
         snake = new Snake();

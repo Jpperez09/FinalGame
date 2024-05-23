@@ -69,7 +69,7 @@ public class Renderer {
         // Draw the snake
         for (int i = 0; i < snake.getBody().size(); i++) {
             Point current = snake.getBody().get(i);
-            Point previous = (i == 0) ? current : snake.getBody().get(i - 1);  // Use current point for head, previous for others
+            Point previous = (i == 0) ? current : snake.getPreviousBody().get(i - 1);  // Use current point for head, previous for others
             Point next = (i == snake.getBody().size() - 1) ? current : snake.getBody().get(i + 1); // Use current point for tail, next for others
 
             double startX = previous.getX() * TILE_SIZE;
@@ -147,7 +147,10 @@ public class Renderer {
     }
 
     private double interpolate(double start, double end) {
-        return start + ((end - start) * animationStep) / ANIMATION_STEPS;
+        // Use easing function for smoother animation
+        double t = ((double) animationStep) / ANIMATION_STEPS;
+        t = t * t * (3 - 2 * t); // Smoothstep easing function
+        return start + t * (end - start);
     }
 
     public void setAnimationStep(int step) {
