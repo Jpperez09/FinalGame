@@ -5,11 +5,9 @@ import javafx.animation.Timeline;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 public class GameBoard extends Pane {
@@ -19,6 +17,7 @@ public class GameBoard extends Pane {
     private static final int ANIMATION_STEPS = 10;
 
     private Timeline timeline;
+    private Renderer renderer;
     private GraphicsContext gc;
     private Snake snake;
     private Food food;
@@ -27,34 +26,13 @@ public class GameBoard extends Pane {
     private Button restartButton;
     private int animationStep;
 
-    // Load images
-    private Image headUp, headDown, headLeft, headRight;
-    private Image bodyHorizontal, bodyVertical, bodyTopLeft, bodyTopRight, bodyBottomLeft, bodyBottomRight;
-    private Image tailUp, tailDown, tailLeft, tailRight;
-    private Image apple;
-
     public GameBoard() {
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
         gc = canvas.getGraphicsContext2D();
         this.getChildren().add(canvas);
         this.setStyle("-fx-background-color: black;");
 
-        // Load images and print paths
-        headUp = loadImage("/Graphics/head_up.png");
-        headDown = loadImage("/Graphics/head_down.png");
-        headLeft = loadImage("/Graphics/head_left.png");
-        headRight = loadImage("/Graphics/head_right.png");
-        bodyHorizontal = loadImage("/Graphics/body_horizontal.png");
-        bodyVertical = loadImage("/Graphics/body_vertical.png");
-        bodyTopLeft = loadImage("/Graphics/body_topleft.png");
-        bodyTopRight = loadImage("/Graphics/body_topright.png");
-        bodyBottomLeft = loadImage("/Graphics/body_bottomleft.png");
-        bodyBottomRight = loadImage("/Graphics/body_bottomright.png");
-        tailUp = loadImage("/Graphics/tail_up.png");
-        tailDown = loadImage("/Graphics/tail_down.png");
-        tailLeft = loadImage("/Graphics/tail_left.png");
-        tailRight = loadImage("/Graphics/tail_right.png");
-        apple = loadImage("/Graphics/apple.png");
+        renderer = new Renderer();
 
         snake = new Snake();
         food = new Food();
@@ -62,7 +40,6 @@ public class GameBoard extends Pane {
         gameOver = false;
         animationStep = 0;
 
-        // Initialize and configure the restart button
         restartButton = new Button("Restart");
         restartButton.setLayoutX(WIDTH / 2 - 40);
         restartButton.setLayoutY(HEIGHT / 2 - 20);
@@ -78,16 +55,6 @@ public class GameBoard extends Pane {
 
         timeline = new Timeline(new KeyFrame(Duration.millis(150 / ANIMATION_STEPS), e -> run()));
         timeline.setCycleCount(Timeline.INDEFINITE);
-    }
-
-    private Image loadImage(String path) {
-        Image image = new Image(getClass().getResourceAsStream(path));
-        if (image.isError()) {
-            System.out.println("Error loading image: " + path);
-        } else {
-            System.out.println("Loaded image: " + path);
-        }
-        return image;
     }
 
     private void handleKeyPress(KeyEvent event) {
@@ -128,10 +95,10 @@ public class GameBoard extends Pane {
             gameOver = true;
             timeline.stop();
             System.out.println("Game Over");
-            restartButton.setVisible(true); // Show the restart button
+            restartButton.setVisible(true);
             return;
         }
-    
+
         if (animationStep == 0) {
             snake.move();
             if (snake.isFoodEaten(food)) {
@@ -139,130 +106,19 @@ public class GameBoard extends Pane {
                 score++;
             }
         }
-    
-        draw();
-    
+
+        renderer.setAnimationStep(animationStep);
+        renderer.draw(gc, snake, food, score, gameOver, WIDTH, HEIGHT);
+
         animationStep = (animationStep + 1) % ANIMATION_STEPS;
     }
-    
-
-    private void draw() {
-        gc.clearRect(0, 0, WIDTH, HEIGHT);
-    
-        // Draw the checkerboard grid
-        Color lightGreen = Color.web("#A2D149");
-        Color darkGreen = Color.web("#AAD751");
-        for (int x = 0; x < WIDTH; x += TILE_SIZE) {
-            for (int y = 0; y < HEIGHT; y += TILE_SIZE) {
-                if ((x / TILE_SIZE + y / TILE_SIZE) % 2 == 0) {
-                    gc.setFill(lightGreen);
-                } else {
-                    gc.setFill(darkGreen);
-                }
-                gc.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-            }
-        }
-    
-        // Draw the border
-        gc.setStroke(Color.GRAY);
-        gc.setLineWidth(2);
-        gc.strokeRect(1, 1, WIDTH - 2, HEIGHT - 2);
-    
-        // Draw the snake
-        for (int i = 0; i < snake.getBody().size(); i++) {
-            Point current = snake.getBody().get(i);
-            Point previous = (i == 0) ? current : snake.getBody().get(i - 1);  // Use current point for head, previous for others
-            Point next = (i == snake.getBody().size() - 1) ? current : snake.getBody().get(i + 1); // Use current point for tail, next for others
-    
-            double startX = previous.getX() * TILE_SIZE;
-            double startY = previous.getY() * TILE_SIZE;
-            double endX = current.getX() * TILE_SIZE;
-            double endY = current.getY() * TILE_SIZE;
-    
-            double x = interpolate(startX, endX);
-            double y = interpolate(startY, endY);
-    
-            Image image = null;
-            if (i == 0) { // Head
-                switch (snake.getDirection()) {
-                    case UP:
-                        image = headUp;
-                        break;
-                    case DOWN:
-                        image = headDown;
-                        break;
-                    case LEFT:
-                        image = headLeft;
-                        break;
-                    case RIGHT:
-                        image = headRight;
-                        break;
-                }
-            } else if (i == snake.getBody().size() - 1) { // Tail
-                if (previous.getY() < current.getY()) {
-                    image = tailDown;
-                } else if (previous.getY() > current.getY()) {
-                    image = tailUp;
-                } else if (previous.getX() < current.getX()) {
-                    image = tailRight;
-                } else if (previous.getX() > current.getX()) {
-                    image = tailLeft;
-                }
-            } else { // Body
-                if (previous.getX() == next.getX()) {
-                    image = bodyVertical;
-                } else if (previous.getY() == next.getY()) {
-                    image = bodyHorizontal;
-                } else if ((previous.getX() < current.getX() && next.getY() > current.getY()) ||
-                           (next.getX() < current.getX() && previous.getY() < current.getY())) {
-                    image = bodyTopRight;
-                } else if ((previous.getX() < current.getX() && next.getY() < current.getY()) ||
-                           (next.getX() < current.getX() && previous.getY() > current.getY())) {
-                    image = bodyBottomRight;
-                } else if ((previous.getX() > current.getX() && next.getY() > current.getY()) ||
-                           (next.getX() > current.getX() && previous.getY() < current.getY())) {
-                    image = bodyTopLeft;
-                } else if ((previous.getX() > current.getX() && next.getY() < current.getY()) ||
-                           (next.getX() > current.getX() && previous.getY() > current.getY())) {
-                    image = bodyBottomLeft;
-                }
-            }
-    
-            // Debug print for visibility
-            if (image != null) {
-                System.out.println("Drawing image at: (" + x + ", " + y + ") for part " + i);
-                gc.drawImage(image, x, y, TILE_SIZE, TILE_SIZE);
-            } else {
-                System.out.println("Image is null for part " + i);
-            }
-        }
-    
-        // Draw the food
-        food.draw(gc);
-    
-        // Draw the score
-        gc.setFill(Color.WHITE);
-        gc.fillText("Score: " + score, 10, 10);
-    
-        // Draw game over message
-        if (gameOver) {
-            gc.setFill(Color.WHITE);
-            gc.fillText("Game Over! Press Enter to Restart", WIDTH / 2 - 100, HEIGHT / 2);
-        }
-    }
-    
-    private double interpolate(double start, double end) {
-        return start + ((end - start) * animationStep) / ANIMATION_STEPS;
-    }
-    
-    
 
     private void restartGame() {
         snake = new Snake();
         food = new Food();
         score = 0;
         gameOver = false;
-        restartButton.setVisible(false); // Hide the restart button
+        restartButton.setVisible(false);
         timeline.play();
         this.requestFocus();
     }
