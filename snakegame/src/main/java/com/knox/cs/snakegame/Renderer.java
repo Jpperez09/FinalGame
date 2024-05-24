@@ -87,7 +87,7 @@ public class Renderer {
                     gc.drawImage(headImage, x, y, TILE_SIZE, TILE_SIZE);
                 }
             } else { // Body
-                gc.setFill(Color.BLUE);
+                gc.setFill(Color.web("#4A73F1"));
                 gc.fillRoundRect(x, y, TILE_SIZE, TILE_SIZE, 10, 10);
             }
         }
