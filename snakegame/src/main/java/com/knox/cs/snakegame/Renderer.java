@@ -11,8 +11,6 @@ public class Renderer {
     private int animationStep;
 
     private Image headUp, headDown, headLeft, headRight;
-    private Image bodyHorizontal, bodyVertical, bodyTopLeft, bodyTopRight, bodyBottomLeft, bodyBottomRight;
-    private Image tailUp, tailDown, tailLeft, tailRight;
     private Image apple;
 
     public Renderer() {
@@ -21,16 +19,6 @@ public class Renderer {
         headDown = loadImage("/Graphics/head_down.png");
         headLeft = loadImage("/Graphics/head_left.png");
         headRight = loadImage("/Graphics/head_right.png");
-        bodyHorizontal = loadImage("/Graphics/body_horizontal.png");
-        bodyVertical = loadImage("/Graphics/body_vertical.png");
-        bodyTopLeft = loadImage("/Graphics/body_topleft.png");
-        bodyTopRight = loadImage("/Graphics/body_topright.png");
-        bodyBottomLeft = loadImage("/Graphics/body_bottomleft.png");
-        bodyBottomRight = loadImage("/Graphics/body_bottomright.png");
-        tailUp = loadImage("/Graphics/tail_up.png");
-        tailDown = loadImage("/Graphics/tail_down.png");
-        tailLeft = loadImage("/Graphics/tail_left.png");
-        tailRight = loadImage("/Graphics/tail_right.png");
         apple = loadImage("/Graphics/apple.png");
     }
 
@@ -66,11 +54,10 @@ public class Renderer {
         gc.setLineWidth(2);
         gc.strokeRect(1, 1, width - 2, height - 2);
 
-        // Draw the snake
+        // Draw the snake with rounded rectangles and interpolate movement
         for (int i = 0; i < snake.getBody().size(); i++) {
             Point current = snake.getBody().get(i);
-            Point previous = (i == 0) ? current : snake.getPreviousBody().get(i - 1);  // Use current point for head, previous for others
-            Point next = (i == snake.getBody().size() - 1) ? current : snake.getBody().get(i + 1); // Use current point for tail, next for others
+            Point previous = snake.getPreviousBody().get(i);
 
             double startX = previous.getX() * TILE_SIZE;
             double startY = previous.getY() * TILE_SIZE;
@@ -80,55 +67,28 @@ public class Renderer {
             double x = interpolate(startX, endX);
             double y = interpolate(startY, endY);
 
-            Image image = null;
-
             if (i == 0) { // Head
+                Image headImage = null;
                 switch (snake.getDirection()) {
                     case UP:
-                        image = headUp;
+                        headImage = headUp;
                         break;
                     case DOWN:
-                        image = headDown;
+                        headImage = headDown;
                         break;
                     case LEFT:
-                        image = headLeft;
+                        headImage = headLeft;
                         break;
                     case RIGHT:
-                        image = headRight;
+                        headImage = headRight;
                         break;
                 }
-            } else if (i == snake.getBody().size() - 1) { // Tail
-                if (previous.getY() < current.getY()) {
-                    image = tailDown;
-                } else if (previous.getY() > current.getY()) {
-                    image = tailUp;
-                } else if (previous.getX() < current.getX()) {
-                    image = tailRight;
-                } else if (previous.getX() > current.getX()) {
-                    image = tailLeft;
+                if (headImage != null) {
+                    gc.drawImage(headImage, x, y, TILE_SIZE, TILE_SIZE);
                 }
             } else { // Body
-                if (previous.getX() == next.getX()) {
-                    image = bodyVertical;
-                } else if (previous.getY() == next.getY()) {
-                    image = bodyHorizontal;
-                } else if ((previous.getX() < current.getX() && next.getY() > current.getY()) ||
-                           (next.getX() < current.getX() && previous.getY() < current.getY())) {
-                    image = bodyTopRight;
-                } else if ((previous.getX() < current.getX() && next.getY() < current.getY()) ||
-                           (next.getX() < current.getX() && previous.getY() > current.getY())) {
-                    image = bodyBottomRight;
-                } else if ((previous.getX() > current.getX() && next.getY() > current.getY()) ||
-                           (next.getX() > current.getX() && previous.getY() < current.getY())) {
-                    image = bodyTopLeft;
-                } else if ((previous.getX() > current.getX() && next.getY() < current.getY()) ||
-                           (next.getX() > current.getX() && previous.getY() > current.getY())) {
-                    image = bodyBottomLeft;
-                }
-            }
-
-            if (image != null) {
-                gc.drawImage(image, x, y, TILE_SIZE, TILE_SIZE);
+                gc.setFill(Color.BLUE);
+                gc.fillRoundRect(x, y, TILE_SIZE, TILE_SIZE, 10, 10);
             }
         }
 
@@ -147,7 +107,6 @@ public class Renderer {
     }
 
     private double interpolate(double start, double end) {
-        // Use easing function for smoother animation
         double t = ((double) animationStep) / ANIMATION_STEPS;
         t = t * t * (3 - 2 * t); // Smoothstep easing function
         return start + t * (end - start);
