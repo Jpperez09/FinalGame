@@ -14,10 +14,6 @@ public class GameBoard extends Pane {
     public static final int WIDTH = 600;
     public static final int HEIGHT = 400;
     public static final int TILE_SIZE = 20;
-    private static final int ANIMATION_STEPS = 10;
-    private static final int FAST_SPEED = 50;
-    private static final int NORMAL_SPEED = 100;
-    private static final int SLOW_SPEED = 150;
 
     private Timeline timeline;
     private Renderer renderer;
@@ -63,14 +59,14 @@ public class GameBoard extends Pane {
         int speedDuration;
         switch (speed) {
             case "Fast":
-                speedDuration = FAST_SPEED;
+                speedDuration = 10;
                 break;
             case "Slow":
-                speedDuration = SLOW_SPEED;
+                speedDuration = 25;
                 break;
             case "Normal":
             default:
-                speedDuration = NORMAL_SPEED;
+                speedDuration = 17;
                 break;
         }
 
@@ -131,7 +127,7 @@ public class GameBoard extends Pane {
         renderer.setAnimationStep(animationStep);
         renderer.draw(gc, snake, food, score, gameOver, WIDTH, HEIGHT);
 
-        animationStep = (animationStep + 1) % ANIMATION_STEPS;
+        animationStep = (animationStep + 1) % 10;
     }
 
     private void restartGame() {

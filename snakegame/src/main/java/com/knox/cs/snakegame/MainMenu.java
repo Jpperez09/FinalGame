@@ -21,7 +21,6 @@ public class MainMenu extends VBox {
     private Text highestScore;
     private int score;
     private int highScore;
-    private String selectedSpeed = "Normal"; // Default speed
 
     public MainMenu(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -74,7 +73,7 @@ public class MainMenu extends VBox {
     }
 
     private void startGame() {
-        GameBoard gameBoard = new GameBoard(selectedSpeed); // Pass the selected speed
+        GameBoard gameBoard = new GameBoard(Config.getSpeed()); // Pass the selected speed
         Scene gameScene = new Scene(gameBoard, GameBoard.WIDTH, GameBoard.HEIGHT);
         primaryStage.setScene(gameScene);
         gameBoard.startGame();
@@ -98,15 +97,16 @@ public class MainMenu extends VBox {
         ToggleButton normalButton = new ToggleButton("Normal");
         normalButton.setToggleGroup(speedGroup);
         normalButton.setUserData("Normal");
-        normalButton.setSelected(true); // Default to Normal speed
+        normalButton.setSelected("Normal".equals(Config.getSpeed())); // Set selected based on saved speed
 
         ToggleButton slowButton = new ToggleButton("Slow");
         slowButton.setToggleGroup(speedGroup);
         slowButton.setUserData("Slow");
+        slowButton.setSelected("Slow".equals(Config.getSpeed())); // Set selected based on saved speed
 
         speedGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                selectedSpeed = newValue.getUserData().toString();
+                Config.setSpeed(newValue.getUserData().toString());
             }
         });
 
