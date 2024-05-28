@@ -15,6 +15,9 @@ public class GameBoard extends Pane {
     public static final int HEIGHT = 400;
     public static final int TILE_SIZE = 20;
     private static final int ANIMATION_STEPS = 10;
+    private static final int FAST_SPEED = 50;
+    private static final int NORMAL_SPEED = 100;
+    private static final int SLOW_SPEED = 150;
 
     private Timeline timeline;
     private Renderer renderer;
@@ -26,7 +29,7 @@ public class GameBoard extends Pane {
     private Button restartButton;
     private int animationStep;
 
-    public GameBoard() {
+    public GameBoard(String speed) {
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
         gc = canvas.getGraphicsContext2D();
         this.getChildren().add(canvas);
@@ -57,7 +60,21 @@ public class GameBoard extends Pane {
 
         this.setOnKeyPressed(event -> handleKeyPress(event));
 
-        timeline = new Timeline(new KeyFrame(Duration.millis(150 / ANIMATION_STEPS), e -> run()));
+        int speedDuration;
+        switch (speed) {
+            case "Fast":
+                speedDuration = FAST_SPEED;
+                break;
+            case "Slow":
+                speedDuration = SLOW_SPEED;
+                break;
+            case "Normal":
+            default:
+                speedDuration = NORMAL_SPEED;
+                break;
+        }
+
+        timeline = new Timeline(new KeyFrame(Duration.millis(speedDuration), e -> run()));
         timeline.setCycleCount(Timeline.INDEFINITE);
     }
 

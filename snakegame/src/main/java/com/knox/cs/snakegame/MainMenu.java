@@ -3,6 +3,8 @@ package com.knox.cs.snakegame;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -19,6 +21,7 @@ public class MainMenu extends VBox {
     private Text highestScore;
     private int score;
     private int highScore;
+    private String selectedSpeed = "Normal"; // Default speed
 
     public MainMenu(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -71,13 +74,66 @@ public class MainMenu extends VBox {
     }
 
     private void startGame() {
-        GameBoard gameBoard = new GameBoard();
+        GameBoard gameBoard = new GameBoard(selectedSpeed); // Pass the selected speed
         Scene gameScene = new Scene(gameBoard, GameBoard.WIDTH, GameBoard.HEIGHT);
         primaryStage.setScene(gameScene);
         gameBoard.startGame();
     }
 
     private void showConfigurations() {
-        // Add configurations functionality later
+        VBox configBox = new VBox();
+        configBox.setSpacing(10);
+        configBox.setAlignment(Pos.CENTER);
+
+        Text configTitle = new Text("Select Game Speed");
+        configTitle.setFont(Font.font("Arial", 24));
+        configTitle.setFill(Color.WHITE);
+
+        ToggleGroup speedGroup = new ToggleGroup();
+
+        ToggleButton fastButton = new ToggleButton("Fast");
+        fastButton.setToggleGroup(speedGroup);
+        fastButton.setUserData("Fast");
+
+        ToggleButton normalButton = new ToggleButton("Normal");
+        normalButton.setToggleGroup(speedGroup);
+        normalButton.setUserData("Normal");
+        normalButton.setSelected(true); // Default to Normal speed
+
+        ToggleButton slowButton = new ToggleButton("Slow");
+        slowButton.setToggleGroup(speedGroup);
+        slowButton.setUserData("Slow");
+
+        speedGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                selectedSpeed = newValue.getUserData().toString();
+            }
+        });
+
+        HBox speedBox = new HBox(10, fastButton, normalButton, slowButton);
+        speedBox.setAlignment(Pos.CENTER);
+
+        Button saveButton = new Button("Save");
+        saveButton.setPrefWidth(200);
+        saveButton.setFont(Font.font("Arial", 18));
+        saveButton.setOnAction(e -> {
+            primaryStage.setScene(new Scene(new MainMenu(primaryStage), GameBoard.WIDTH, GameBoard.HEIGHT));
+        });
+
+        Button backButton = new Button("Back");
+        backButton.setPrefWidth(200);
+        backButton.setFont(Font.font("Arial", 18));
+        backButton.setOnAction(e -> {
+            primaryStage.setScene(new Scene(new MainMenu(primaryStage), GameBoard.WIDTH, GameBoard.HEIGHT));
+        });
+
+        VBox buttonBox = new VBox(saveButton, backButton);
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.setSpacing(10);
+
+        configBox.getChildren().addAll(configTitle, speedBox, buttonBox);
+
+        Scene configScene = new Scene(configBox, GameBoard.WIDTH, GameBoard.HEIGHT);
+        primaryStage.setScene(configScene);
     }
 }
