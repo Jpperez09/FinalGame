@@ -62,11 +62,11 @@ public class GameBoard extends Pane {
                 speedDuration = 10;
                 break;
             case "Slow":
-                speedDuration = 25;
+                speedDuration = 22;
                 break;
             case "Normal":
             default:
-                speedDuration = 17;
+                speedDuration = 16;
                 break;
         }
 
@@ -139,4 +139,6 @@ public class GameBoard extends Pane {
         timeline.play();
         this.requestFocus();
     }
+
+    
 }
