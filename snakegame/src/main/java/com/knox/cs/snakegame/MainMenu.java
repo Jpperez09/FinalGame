@@ -86,7 +86,7 @@ public class MainMenu extends VBox {
 
         Text configTitle = new Text("Select Game Speed");
         configTitle.setFont(Font.font("Arial", 24));
-        configTitle.setFill(Color.WHITE);
+        configTitle.setFill(Color.BLACK);
 
         ToggleGroup speedGroup = new ToggleGroup();
 
