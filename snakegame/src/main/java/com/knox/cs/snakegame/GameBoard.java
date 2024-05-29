@@ -7,6 +7,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
@@ -58,15 +59,16 @@ public class GameBoard extends Pane {
 
         scoreText = new Text("Score: 0");
         scoreText.setFill(javafx.scene.paint.Color.WHITE);
-        scoreText.setX(10);
-        scoreText.setY(20);
 
         highScoreText = new Text("High Score: 0");
         highScoreText.setFill(javafx.scene.paint.Color.WHITE);
-        highScoreText.setX(10);
-        highScoreText.setY(40);
 
-        this.getChildren().addAll(scoreText, highScoreText);
+        HBox scoreBox = new HBox(10);  // HBox with spacing of 10
+        scoreBox.getChildren().addAll(scoreText, highScoreText);
+        scoreBox.setLayoutX(10);
+        scoreBox.setLayoutY(10);
+
+        this.getChildren().add(scoreBox);
 
         this.setFocusTraversable(true);
         this.requestFocus();
@@ -146,7 +148,7 @@ public class GameBoard extends Pane {
         }
 
         renderer.setAnimationStep(animationStep);
-        renderer.draw(gc, snake, food, score, gameOver, WIDTH, HEIGHT);
+        renderer.draw(gc, snake, food, gameOver, WIDTH, HEIGHT);  // Remove score from draw method
 
         animationStep = (animationStep + 1) % 10;
     }

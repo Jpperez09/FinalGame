@@ -32,7 +32,7 @@ public class Renderer {
         return image;
     }
 
-    public void draw(GraphicsContext gc, Snake snake, Food food, int score, boolean gameOver, int width, int height) {
+    public void draw(GraphicsContext gc, Snake snake, Food food,  boolean gameOver, int width, int height) {
         gc.clearRect(0, 0, width, height);
 
         // Draw the checkerboard grid
@@ -94,10 +94,6 @@ public class Renderer {
 
         // Draw the food
         food.draw(gc);
-
-        // Draw the score
-        gc.setFill(Color.WHITE);
-        gc.fillText("Score: " + score, 10, 10);
 
         // Draw game over message
         if (gameOver) {
