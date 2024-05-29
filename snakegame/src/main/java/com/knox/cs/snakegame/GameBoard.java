@@ -44,7 +44,9 @@ public class GameBoard extends Pane {
         renderer = new Renderer();
 
         snake = new Snake();
-        food = new Food();
+        
+        food = new Food(snake);  // Pass the snake object to the Food constructor
+
         score = 0;
         gameOver = false;
         animationStep = 0;
@@ -66,7 +68,7 @@ public class GameBoard extends Pane {
         HBox scoreBox = new HBox(10);  // HBox with spacing of 10
         scoreBox.getChildren().addAll(scoreText, highScoreText);
         scoreBox.setLayoutX(10);
-        scoreBox.setLayoutY(HEIGHT - 30);  // Position within the border
+        scoreBox.setLayoutY(10);  // Position within the border
 
         this.getChildren().add(scoreBox);
 
@@ -155,7 +157,7 @@ public class GameBoard extends Pane {
 
     private void restartGame() {
         snake = new Snake();
-        food = new Food();
+        food = new Food(snake);  // Pass the snake object to the Food constructor
         score = 0;
         scoreText.setText("Score: 0");  // Reset score text
         highScoreText.setText("High Score: " + highScore);  // Display the current high score

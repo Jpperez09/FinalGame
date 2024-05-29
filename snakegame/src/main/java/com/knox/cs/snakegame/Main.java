@@ -9,7 +9,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         MainMenu mainMenu = new MainMenu(primaryStage);
-        Scene mainMenuScene = new Scene(mainMenu, 600, 400); // Set main menu size to 600x400
+        Scene mainMenuScene = new Scene(mainMenu, 600, 400); 
 
         primaryStage.setScene(mainMenuScene);
         primaryStage.setTitle("Snake Game");

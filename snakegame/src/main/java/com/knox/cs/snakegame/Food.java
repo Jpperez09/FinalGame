@@ -14,8 +14,8 @@ public class Food {
     private double scale;
     private Image apple;
 
-    public Food() {
-        relocate(null);
+    public Food(Snake snake) {
+        relocate(snake);
         scale = 1.0;
 
         // Load apple image
@@ -42,17 +42,12 @@ public class Food {
     }
 
     public void relocate(Snake snake) {
-        int x = random.nextInt(17);  // Adjust to game board width in tiles
-        int y = random.nextInt(15);  // Adjust to game board height in tiles
-        point = new Point(x, y);
-
-        if (snake != null) {
-            while (snake.getBody().contains(point)) {
-                x = random.nextInt(17);  // Adjust to game board width in tiles
-                y = random.nextInt(15);  // Adjust to game board height in tiles
-                point = new Point(x, y);
-            }
-        }
+        int x, y;
+        do {
+            x = random.nextInt(15) + 1; // Ensure it's within the grid excluding borders
+            y = random.nextInt(13) + 2; // Ensure it's within the grid excluding borders
+            point = new Point(x, y);
+        } while (snake.getBody().contains(point));
     }
 
     public Point getPoint() {

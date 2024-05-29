@@ -22,7 +22,10 @@ public class Snake {
         Point head = body.get(0);
         Point newHead = head.move(direction);
 
-        if (newHead.isOutOfBounds(30, 20) || body.contains(newHead)) {
+        int boardWidth = GameBoard.WIDTH / GameBoard.TILE_SIZE;
+        int boardHeight = (GameBoard.HEIGHT - 40) / GameBoard.TILE_SIZE; // Adjust for the border
+
+        if (newHead.isOutOfBounds(boardWidth, boardHeight) || body.contains(newHead)) {
             alive = false;
             return;
         }
