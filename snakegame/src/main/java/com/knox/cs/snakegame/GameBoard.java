@@ -13,9 +13,9 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 public class GameBoard extends Pane {
-    public static final int WIDTH = 600;
-    public static final int HEIGHT = 400;
     public static final int TILE_SIZE = 20;
+    public static final int WIDTH = TILE_SIZE * 17;
+    public static final int HEIGHT = TILE_SIZE * 15 + 40;  // Additional space for the score
 
     private static int highScore = 0;  // Static high score variable
 
@@ -66,7 +66,7 @@ public class GameBoard extends Pane {
         HBox scoreBox = new HBox(10);  // HBox with spacing of 10
         scoreBox.getChildren().addAll(scoreText, highScoreText);
         scoreBox.setLayoutX(10);
-        scoreBox.setLayoutY(10);
+        scoreBox.setLayoutY(HEIGHT - 30);  // Position within the border
 
         this.getChildren().add(scoreBox);
 

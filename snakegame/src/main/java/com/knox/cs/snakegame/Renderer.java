@@ -32,14 +32,14 @@ public class Renderer {
         return image;
     }
 
-    public void draw(GraphicsContext gc, Snake snake, Food food,  boolean gameOver, int width, int height) {
+    public void draw(GraphicsContext gc, Snake snake, Food food, boolean gameOver, int width, int height) {
         gc.clearRect(0, 0, width, height);
 
         // Draw the checkerboard grid
         Color lightGreen = Color.web("#A2D149");
         Color darkGreen = Color.web("#AAD751");
-        for (int x = 0; x < width; x += TILE_SIZE) {
-            for (int y = 0; y < height; y += TILE_SIZE) {
+        for (int x = 0; x < width - TILE_SIZE; x += TILE_SIZE) {
+            for (int y = 40; y < height - TILE_SIZE; y += TILE_SIZE) {
                 if ((x / TILE_SIZE + y / TILE_SIZE) % 2 == 0) {
                     gc.setFill(lightGreen);
                 } else {
@@ -50,9 +50,11 @@ public class Renderer {
         }
 
         // Draw the border
-        gc.setStroke(Color.GRAY);
-        gc.setLineWidth(2);
-        gc.strokeRect(1, 1, width - 2, height - 2);
+        gc.setFill(Color.DARKGREEN);
+        gc.fillRect(0, 0, width, 40);  // Top border
+        gc.fillRect(0, 0, TILE_SIZE, height);  // Left border
+        gc.fillRect(width - TILE_SIZE, 0, TILE_SIZE, height);  // Right border
+        gc.fillRect(0, height - TILE_SIZE, width, TILE_SIZE);  // Bottom border
 
         // Draw the snake with rounded rectangles and interpolate movement
         for (int i = 0; i < snake.getBody().size(); i++) {
@@ -60,9 +62,9 @@ public class Renderer {
             Point previous = snake.getPreviousBody().get(i);
 
             double startX = previous.getX() * TILE_SIZE;
-            double startY = previous.getY() * TILE_SIZE;
+            double startY = previous.getY() * TILE_SIZE + 40;  // Offset for top border
             double endX = current.getX() * TILE_SIZE;
-            double endY = current.getY() * TILE_SIZE;
+            double endY = current.getY() * TILE_SIZE + 40;  // Offset for top border
 
             double x = interpolate(startX, endX);
             double y = interpolate(startY, endY);
