@@ -45,7 +45,7 @@ public class Food {
         int x, y;
         do {
             x = random.nextInt(15) + 1; // Ensure it's within the grid excluding borders
-            y = random.nextInt(13) + 2; // Ensure it's within the grid excluding borders
+            y = random.nextInt(14) + 2; // Ensure it's within the grid excluding borders
             point = new Point(x, y);
         } while (snake.getBody().contains(point));
     }

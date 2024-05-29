@@ -36,7 +36,7 @@ public class Point {
     
     public boolean isOutOfBounds(int width, int height) {
         // Exclude the border tiles (1 tile thick border on sides, 2 tiles thick border on top)
-        return x < 1 || x >= width - 1 || y < 2 || y >= height - 1;
+        return x < 1 || x >= width - 1 || y < 0 || y >= height - 1;
     }
     
     
