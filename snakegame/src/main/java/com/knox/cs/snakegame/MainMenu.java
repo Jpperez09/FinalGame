@@ -117,14 +117,14 @@ public class MainMenu extends VBox {
         saveButton.setPrefWidth(200);
         saveButton.setFont(Font.font("Arial", 18));
         saveButton.setOnAction(e -> {
-            primaryStage.setScene(new Scene(new MainMenu(primaryStage), GameBoard.WIDTH, GameBoard.HEIGHT));
+            primaryStage.setScene(new Scene(new MainMenu(primaryStage), 600, 400)); // Keep main menu size 600x400
         });
 
         Button backButton = new Button("Back");
         backButton.setPrefWidth(200);
         backButton.setFont(Font.font("Arial", 18));
         backButton.setOnAction(e -> {
-            primaryStage.setScene(new Scene(new MainMenu(primaryStage), GameBoard.WIDTH, GameBoard.HEIGHT));
+            primaryStage.setScene(new Scene(new MainMenu(primaryStage), 600, 400)); // Keep main menu size 600x400
         });
 
         VBox buttonBox = new VBox(saveButton, backButton);
@@ -133,7 +133,7 @@ public class MainMenu extends VBox {
 
         configBox.getChildren().addAll(configTitle, speedBox, buttonBox);
 
-        Scene configScene = new Scene(configBox, GameBoard.WIDTH, GameBoard.HEIGHT);
+        Scene configScene = new Scene(configBox, 600, 400); // Keep main menu size 600x400
         primaryStage.setScene(configScene);
     }
 }

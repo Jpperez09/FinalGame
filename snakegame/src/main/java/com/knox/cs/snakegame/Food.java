@@ -42,14 +42,14 @@ public class Food {
     }
 
     public void relocate(Snake snake) {
-        int x = random.nextInt(30);
-        int y = random.nextInt(20);
+        int x = random.nextInt(17);  // Adjust to game board width in tiles
+        int y = random.nextInt(15);  // Adjust to game board height in tiles
         point = new Point(x, y);
 
         if (snake != null) {
             while (snake.getBody().contains(point)) {
-                x = random.nextInt(30);
-                y = random.nextInt(20);
+                x = random.nextInt(17);  // Adjust to game board width in tiles
+                y = random.nextInt(15);  // Adjust to game board height in tiles
                 point = new Point(x, y);
             }
         }
@@ -69,7 +69,8 @@ public class Food {
 
     public void draw(GraphicsContext gc) {
         double x = point.getX() * GameBoard.TILE_SIZE;
-        double y = point.getY() * GameBoard.TILE_SIZE;
+        double y = point.getY() * GameBoard.TILE_SIZE + 40;  // Offset for top border
+
         double size = GameBoard.TILE_SIZE * scale;
 
         gc.drawImage(apple, x + (GameBoard.TILE_SIZE - size) / 2, y + (GameBoard.TILE_SIZE - size) / 2, size, size);
