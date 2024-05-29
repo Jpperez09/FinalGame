@@ -8,12 +8,15 @@ import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 public class GameBoard extends Pane {
     public static final int WIDTH = 600;
     public static final int HEIGHT = 400;
     public static final int TILE_SIZE = 20;
+
+    private static int highScore = 0;  // Static high score variable
 
     private Timeline timeline;
     private Renderer renderer;
@@ -24,6 +27,8 @@ public class GameBoard extends Pane {
     private boolean gameOver;
     private Button restartButton;
     private int animationStep;
+    private Text scoreText;
+    private Text highScoreText;
 
     public GameBoard(String speed) {
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
@@ -50,6 +55,18 @@ public class GameBoard extends Pane {
         restartButton.setOnAction(e -> restartGame());
 
         this.getChildren().add(restartButton);
+
+        scoreText = new Text("Score: 0");
+        scoreText.setFill(javafx.scene.paint.Color.WHITE);
+        scoreText.setX(10);
+        scoreText.setY(20);
+
+        highScoreText = new Text("High Score: 0");
+        highScoreText.setFill(javafx.scene.paint.Color.WHITE);
+        highScoreText.setX(10);
+        highScoreText.setY(40);
+
+        this.getChildren().addAll(scoreText, highScoreText);
 
         this.setFocusTraversable(true);
         this.requestFocus();
@@ -113,6 +130,9 @@ public class GameBoard extends Pane {
             timeline.stop();
             System.out.println("Game Over");
             restartButton.setVisible(true);
+            if (score > highScore) {
+                highScore = score;  // Update high score if the current score is higher
+            }
             return;
         }
 
@@ -121,6 +141,7 @@ public class GameBoard extends Pane {
             if (snake.isFoodEaten(food)) {
                 food.relocate(snake);
                 score++;
+                scoreText.setText("Score: " + score);  // Update score text
             }
         }
 
@@ -134,11 +155,11 @@ public class GameBoard extends Pane {
         snake = new Snake();
         food = new Food();
         score = 0;
+        scoreText.setText("Score: 0");  // Reset score text
+        highScoreText.setText("High Score: " + highScore);  // Display the current high score
         gameOver = false;
         restartButton.setVisible(false);
         timeline.play();
         this.requestFocus();
     }
-
-    
 }
